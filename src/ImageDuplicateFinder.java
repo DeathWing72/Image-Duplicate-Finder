@@ -13,7 +13,6 @@ public class ImageDuplicateFinder
         FileFrame frame = new FileFrame();
         File[] files = getFile(frame.file);
         File[][] sortFiles = imageSort(files);
-        Tests.dimsOrderTest(sortFiles);
         findMatches(sortFiles);
     }
     public static File[] getFile(File dir)
@@ -99,16 +98,16 @@ public class ImageDuplicateFinder
         ArrayList<ArrayList<File>> matches = new ArrayList<ArrayList<File>>();
         for(File[] files: f)
         {
-            System.out.println("New Aspect Ratio - "+getAR(files[0]));
+            //System.out.println("New Aspect Ratio - "+getAR(files[0]));
             if(f.length > 1)
             {
-                System.out.println("Beginning Comparisons in Aspect Ratio: "+getAR(files[0]));
+                //System.out.println("Beginning Comparisons in Aspect Ratio: "+getAR(files[0]));
                 for(int x=0;x<files.length-1;x++)
                 {
-                    System.out.println("x: "+files[x].getName());
+                    //System.out.println("x: "+files[x].getName());
                     for(int y=x+1;y<files.length;y++)
                     {
-                        System.out.println("x: "+files[x].getName()+"  y: "+files[y].getName());
+                        //System.out.println("x: "+files[x].getName()+"  y: "+files[y].getName());
                         double simIndex = 0;
                         try
                         {
