@@ -8,12 +8,15 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 public class ImageDuplicateFinder
 {
+	static FileOutput fOut = new FileOutput();
     public static void main(String[] args)
     {
         FileFrame frame = new FileFrame();
+        fOut.setFile(frame.file);
         File[] files = getFile(frame.file);
         File[][] sortFiles = imageSort(files);
         findMatches(sortFiles);
+        fOut.endPrint();
     }
     public static File[] getFile(File dir)
     {
@@ -95,6 +98,7 @@ public class ImageDuplicateFinder
     public static void findMatches(File[][] f)
     {
         System.out.println("File Name a,File Name b,Similarity Index");
+        fOut.newPrint("File Name a,File Name b,Similarity Index");
         ArrayList<ArrayList<File>> matches = new ArrayList<ArrayList<File>>();
         for(File[] files: f)
         {
@@ -152,6 +156,7 @@ public class ImageDuplicateFinder
     public static void printMatch(File a, File b, double c)
     {
         System.out.println(a.getName()+","+b.getName()+","+c);
+        fOut.newPrint(a.getName()+","+b.getName()+","+c);
         //System.out.println("=HYPERLINK("+a.getPath()+"),  ,=HYPERLINK("+b.getPath()+")");
     }
     public static Dimension getDims(File f)
