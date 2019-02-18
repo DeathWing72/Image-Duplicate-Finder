@@ -97,8 +97,8 @@ public class ImageDuplicateFinder
     }
     public static void findMatches(File[][] f)
     {
-        System.out.println("File Name a,File Name b,Similarity Index");
-        fOut.newPrint("File Name a,File Name b,Similarity Index");
+        System.out.println("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index");
+        fOut.newPrint("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index");
         ArrayList<ArrayList<File>> matches = new ArrayList<ArrayList<File>>();
         for(File[] files: f)
         {
@@ -155,8 +155,8 @@ public class ImageDuplicateFinder
     }
     public static void printMatch(File a, File b, double c)
     {
-        System.out.println(a.getName()+","+b.getName()+","+c);
-        fOut.newPrint(a.getName()+","+b.getName()+","+c);
+        System.out.println(a.getName()+","+(int)getWidth(a)+"x"+(int)getHeight(a)+","+b.getName()+","+(int)getWidth(b)+"x"+(int)getHeight(b)+","+c);
+        fOut.newPrint(a.getName()+","+(int)getWidth(a)+"x"+(int)getHeight(a)+","+b.getName()+","+(int)getWidth(b)+"x"+(int)getHeight(b)+","+c);
         //System.out.println("=HYPERLINK("+a.getPath()+"),  ,=HYPERLINK("+b.getPath()+")");
     }
     public static Dimension getDims(File f)
