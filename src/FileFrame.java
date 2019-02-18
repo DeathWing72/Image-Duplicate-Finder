@@ -19,6 +19,10 @@ public class FileFrame extends JFrame
         {
             file = fc.getSelectedFile();
         }
+        else if(returnVal == JFileChooser.CANCEL_OPTION)
+        {
+        	System.exit(0);
+        }
     }
     public static void main() {
         // Run the GUI construction in the Event-Dispatching thread for thread-safety
