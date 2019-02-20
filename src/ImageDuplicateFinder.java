@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.io.File;
 import java.io.IOException;
@@ -8,19 +9,27 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 public class ImageDuplicateFinder
 {
-	static FileOutput fOut = new FileOutput();
+	private static final double THRESHOLD = .88;
+	static FileOutput fOut = new FileOutput(), fLog = new FileOutput();
     public static void main(String[] args)
     {
         FileFrame frame = new FileFrame();
-        fOut.setFile(frame.file);
+        File subDir = new File(frame.file.getAbsoluteFile(), "Analysis Results");
+        subDir.mkdir();
+        fOut.setFile(frame.file,subDir.getAbsolutePath(),frame.file.getName(),".csv");
+        fLog.setFile(frame.file, subDir.getAbsolutePath(), frame.file.getName()+" Analysis Data Log", ".txt");
         File[] files = getFile(frame.file);
         File[][] sortFiles = imageSort(files);
-        findMatches(sortFiles);
+        PotMatches[] pm = findMatches(sortFiles);
+        confirmMatches(pm);
         fOut.endPrint();
+        fLog.endPrint();
+        System.exit(0);
     }
     public static File[] getFile(File dir)
     {
-        System.err.println(dir.getAbsoluteFile()); //Print folder path to err dialog
+    	System.err.println(timeStamp() + dir.getAbsoluteFile()); //Print folder path to err dialog
+        fLog.newPrintln(timeStamp() + dir.getAbsolutePath());
         File[] dirContents = dir.listFiles(); //Initialize File array
         ArrayList<File> files = new ArrayList<File>();
         for(int fn = 0; fn < dirContents.length; fn++)
@@ -95,63 +104,77 @@ public class ImageDuplicateFinder
         }
         return ratios;
     }
-    public static void findMatches(File[][] f)
+    public static PotMatches[] findMatches(File[][] f)
     {
-        System.out.println("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index");
-        fOut.newPrint("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index");
-        ArrayList<ArrayList<File>> matches = new ArrayList<ArrayList<File>>();
+        ArrayList<PotMatches> matches = new ArrayList<PotMatches>();
         for(File[] files: f)
         {
-            //System.out.println("New Aspect Ratio - "+getAR(files[0]));
+            System.err.println(timeStamp() + "New Aspect Ratio - "+getAR(files[0]));
+            fLog.newPrintln(timeStamp() + "New Aspect Ratio - "+getAR(files[0]));
             if(f.length > 1)
             {
-                //System.out.println("Beginning Comparisons in Aspect Ratio: "+getAR(files[0]));
+                System.err.println(timeStamp() + "Beginning Comparisons in Aspect Ratio: "+getAR(files[0]));
+                fLog.newPrintln(timeStamp() + "Beginning Comparisons in Aspect Ratio: "+getAR(files[0]));
                 for(int x=0;x<files.length-1;x++)
                 {
-                    //System.out.println("x: "+files[x].getName());
+                    System.err.println(timeStamp() + "x: "+files[x].getName());
+                    fLog.newPrintln(timeStamp() + "x: "+files[x].getName());
                     for(int y=x+1;y<files.length;y++)
                     {
-                        //System.out.println("x: "+files[x].getName()+"  y: "+files[y].getName());
+                        System.err.println(timeStamp() + "x: "+files[x].getName()+"  y: "+files[y].getName());
+                        fLog.newPrintln(timeStamp() + "x: "+files[x].getName()+"  y: "+files[y].getName());
                         double simIndex = 0;
                         try
                         {
                             SsimCalculator ssim = new SsimCalculator(files[x]);
                             simIndex = ssim.compareTo(files[y]);
-                            ssim = null;
                         } catch(SsimException | IOException e) {}
-                        if(true/*simIndex > .95*/)
+                        if(simIndex >= THRESHOLD)
                         {
-                            // matches.add(new ArrayList<File>());
-                            // matches.get(matches.size()-1).add(files[x]);
-                            // matches.get(matches.size()-1).add(files[y]);
-                            CompareFrame frame = new CompareFrame(files[x],files[y],simIndex);
-                            while(!frame.buttonPressed)
-                            {
-                                try
-                                {
-                                    Thread.sleep(1);
-                                }
-                                catch(InterruptedException ex)
-                                {
-                                    Thread.currentThread().interrupt();
-                                }
-                            }
-                            if(frame.isMatch)
-                            {
-                                printMatch(files[x],files[y],simIndex);
-                            }
+                            matches.add(new PotMatches(files[x],files[y],simIndex));
+                            System.err.println(timeStamp() + "New Potential Match - " + simIndex);
+                            fLog.newPrintln(timeStamp() + "New Potential Match - " + String.valueOf(simIndex));
                         }
                     }
                 }
             }
         }
-        File[][] matchImg = new File[matches.size()][];
-        for(int x = 0; x < matchImg.length; x++)
-        {
-            matchImg[x] = matches.get(x).toArray(new File[matches.get(x).size()]);
-        }
-        System.err.println("Analysis Finished");
-        // return matchImg;
+        return matches.toArray(new PotMatches[matches.size()]);
+    }
+    public static void confirmMatches(PotMatches[] files)
+    {
+    	System.out.println("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index,Match? (No-0/Yes-1)");
+        fOut.newPrintln("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index,Match? (No-0/Yes-1)");
+        for(int i=0;i < files.length;i++)
+    	{
+        	CompareFrame frame = new CompareFrame(files[i].f1,files[i].f2,files[i].simIndex);
+            while(!frame.buttonPressed)
+            {
+                try
+                {
+                    Thread.sleep(1);
+                }
+                catch(InterruptedException ex)
+                {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            printMatch(files[i].f1,files[i].f2,files[i].simIndex);
+            if(frame.isMatch)
+            {
+            	System.out.println(",1");
+                fOut.newPrintln(",1");
+            }
+            else
+            {
+            	System.out.println(",0");
+                fOut.newPrintln(",0");
+            }
+    	}
+        System.out.println(",,,,Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
+    	fOut.newPrintln(",,,,Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
+    	System.err.println(timeStamp() + "Analysis Finished");
+    	fLog.newPrintln(timeStamp() + "Analysis Finished");
     }
     public static void printMatch(File a, File b, double c)
     {
@@ -186,5 +209,22 @@ public class ImageDuplicateFinder
     public static double getAR(File f)
     {
         return getWidth(f)/getHeight(f);
+    }
+    public static String timeStamp()
+    {
+    	Calendar c = Calendar.getInstance();
+    	java.text.SimpleDateFormat timeStamp = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    	return timeStamp.format(c.getTime()) + " --> ";
+    }
+    public static class PotMatches
+    {
+    	public File f1,f2;
+    	public double simIndex;
+    	public PotMatches(File f1, File f2, double simIndex)
+    	{
+    		this.f1 = f1;
+    		this.f2 = f2;
+    		this.simIndex = simIndex;
+    	}
     }
 }

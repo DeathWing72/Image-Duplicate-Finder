@@ -8,7 +8,8 @@ public class CompareFrame extends JFrame
     public boolean isMatch, buttonPressed;
     public CompareFrame(File f1,File f2,double i)
     {
-        Container cp = getContentPane();
+    	this.setExtendedState(Frame.MAXIMIZED_BOTH);
+    	Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
         
         JPanel topPane = new JPanel();
