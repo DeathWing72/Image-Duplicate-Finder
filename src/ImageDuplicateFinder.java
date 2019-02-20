@@ -14,6 +14,7 @@ public class ImageDuplicateFinder
     public static void main(String[] args)
     {
         FileFrame frame = new FileFrame();
+        ProgressFrame pg = new ProgressFrame();
         File subDir = new File(frame.file.getAbsoluteFile(), "Analysis Results");
         subDir.mkdir();
         fOut.setFile(frame.file,subDir.getAbsolutePath(),frame.file.getName(),".csv");
@@ -21,6 +22,7 @@ public class ImageDuplicateFinder
         File[] files = getFile(frame.file);
         File[][] sortFiles = imageSort(files);
         PotMatches[] pm = findMatches(sortFiles);
+        pg.endProgress();
         confirmMatches(pm);
         fOut.endPrint();
         fLog.endPrint();
@@ -171,8 +173,8 @@ public class ImageDuplicateFinder
                 fOut.newPrintln(",0");
             }
     	}
-        System.out.println(",,,,Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
-    	fOut.newPrintln(",,,,Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
+        System.out.println(",,,,Good Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
+    	fOut.newPrintln(",,,,Good Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
     	System.err.println(timeStamp() + "Analysis Finished");
     	fLog.newPrintln(timeStamp() + "Analysis Finished");
     }

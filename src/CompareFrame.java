@@ -75,7 +75,8 @@ public class CompareFrame extends JFrame
         setSize(1600, 1000);        // "super" JFrame sets initial size
         setVisible(true);          // "super" JFrame shows
     }
-    public static void main(File f1,File f2,double i) {
+    public static void main(File f1,File f2,double i)
+    {
         // Run the GUI construction in the Event-Dispatching thread for thread-safety
         SwingUtilities.invokeLater(new Runnable() {
             @Override
