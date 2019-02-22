@@ -147,10 +147,11 @@ public class ImageDuplicateFinder
     {
     	System.out.println("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index,Match? (No-0/Yes-1)");
         fOut.newPrintln("File Name a,File Dimensions a,File Name b,File Dimensions b,Similarity Index,Match? (No-0/Yes-1)");
+        CompareFrame frame = new CompareFrame();
         for(int i=0;i < files.length;i++)
     	{
-        	CompareFrame frame = new CompareFrame(files[i].f1,files[i].f2,files[i].simIndex);
-            while(!frame.buttonPressed)
+        	frame.updateFrame(files[i].f1,files[i].f2,files[i].simIndex,i+1,files.length);
+            while(!frame.getButtonPressed())
             {
                 try
                 {
@@ -162,7 +163,7 @@ public class ImageDuplicateFinder
                 }
             }
             printMatch(files[i].f1,files[i].f2,files[i].simIndex);
-            if(frame.isMatch)
+            if(frame.getIsMatch())
             {
             	System.out.println(",1");
                 fOut.newPrintln(",1");
@@ -172,7 +173,9 @@ public class ImageDuplicateFinder
             	System.out.println(",0");
                 fOut.newPrintln(",0");
             }
+            frame.resetStates();
     	}
+        frame.killFrame();
         System.out.println(",,,,Good Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
     	fOut.newPrintln(",,,,Good Match Percentage:,=SUM(F2:F"+(files.length+1)+")/"+files.length);
     	System.err.println(timeStamp() + "Analysis Finished");
