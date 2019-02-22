@@ -41,6 +41,7 @@ public class Tests
         File f1 = new File("C:\\Users\\DeathWing72\\Pictures\\Saved Pictures\\0dmpja7igyi11.jpeg");
         File f2 = new File("C:\\Users\\DeathWing72\\Pictures\\Saved Pictures\\mcafee virus.PNG");
         @SuppressWarnings("unused")
-		CompareFrame cf = new CompareFrame(f1,f2,.468153154);
+		CompareFrame cf = new CompareFrame();
+        cf.updateFrame(f1, f2, 1.0, 1, 1);
     }
 }
